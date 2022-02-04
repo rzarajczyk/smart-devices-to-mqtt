@@ -49,10 +49,8 @@ with open(CONFIGURATION, 'r') as f:
 
     DEVICES_CONFIG = config['devices']
 
-LOGGER.info(str(DEVICES_CONFIG))
-
 ########################################################################################################################
-# ...
+# core logic
 
 
 DEVICE_CLASSES = {
