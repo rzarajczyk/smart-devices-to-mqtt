@@ -1,0 +1,22 @@
+mqtt:
+  host: ''
+  port: 1883
+  user: ""
+  password: ""
+
+devices:
+  xiaomi-air-monitor:
+    type: xiaomi-air-monitor
+    ip: ≪fill me≫
+    token: ≪fill me≫
+    fetch-interval-seconds: 5
+  xiaomi-air-purifier:
+    type: xiaomi-air-purifier
+    ip: ≪fill me≫
+    token: ≪fill me≫
+    fetch-interval-seconds: 5
+  xiaomi-air-humidifier:
+    type: xiaomi-air-humidifier
+    ip: ≪fill me≫
+    token: ≪fill me≫
+    fetch-interval-seconds: 5
