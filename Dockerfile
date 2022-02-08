@@ -1,6 +1,6 @@
 FROM python:3
 ENV TZ="Europe/Warsaw"
-ENV SD_ROOT="/smart-devices-to-mqtt"
+ENV APP_ROOT="/smart-devices-to-mqtt"
 
 RUN mkdir -p /smart-devices-to-mqtt
 RUN mkdir -p /smart-devices-to-mqtt/config

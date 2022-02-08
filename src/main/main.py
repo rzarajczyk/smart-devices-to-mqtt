@@ -14,7 +14,7 @@ from devices.XiaomiAirQualityMonitor import XiaomiAirQualityMonitor
 
 ########################################################################################################################
 
-ROOT = os.environ.get('SD_ROOT', ".")
+ROOT = os.environ.get('APP_ROOT', ".")
 
 ########################################################################################################################
 # logging configuration
