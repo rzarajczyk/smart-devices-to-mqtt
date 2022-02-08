@@ -1,12 +1,12 @@
 FROM python:3
 ENV TZ="Europe/Warsaw"
-ENV SD_ROOT="/smart-devices-to-graphite"
+ENV SD_ROOT="/smart-devices-to-mqtt"
 
-RUN mkdir -p /smart-devices-to-graphite
-RUN mkdir -p /smart-devices-to-graphite/config
-RUN mkdir -p /smart-devices-to-graphite/logs
+RUN mkdir -p /smart-devices-to-mqtt
+RUN mkdir -p /smart-devices-to-mqtt/config
+RUN mkdir -p /smart-devices-to-mqtt/logs
 
-WORKDIR /smart-devices-to-graphite
+WORKDIR /smart-devices-to-mqtt
 
 COPY . .
 

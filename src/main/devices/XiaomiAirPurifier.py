@@ -1,9 +1,12 @@
+import logging
+
 from apscheduler.schedulers.base import BaseScheduler
 from homie.device_base import Device_Base
 from homie.node.node_base import Node_Base
 from homie.node.property.property_humidity import Property_Humidity
 from homie.node.property.property_speed import Property_Speed
 from homie.node.property.property_temperature import Property_Temperature
+from miio import DeviceException
 from miio.airpurifier import AirPurifier
 from miio.airpurifier import OperationMode
 
@@ -31,11 +34,14 @@ class XiaomiAirPurifier(Device_Base):
         scheduler.add_job(self.refresh, 'interval', seconds=config['fetch-interval-seconds'])
 
     def refresh(self):
-        status = self.device.status()
-        speed = self._create_speed(is_on=status.is_on, mode=status.mode, favorite_level=status.favorite_level)
-        self.property_temperature.value = status.temperature
-        self.property_humidity.value = status.humidity
-        self.property_speed.value = speed
+        try:
+            status = self.device.status()
+            speed = self._create_speed(is_on=status.is_on, mode=status.mode, favorite_level=status.favorite_level)
+            self.property_temperature.value = status.temperature
+            self.property_humidity.value = status.humidity
+            self.property_speed.value = speed
+        except DeviceException as e:
+            logging.getLogger('XiaomiAirPurifier').warning("Device unreachable: %s" % str(e))
 
     @staticmethod
     def _create_speed(is_on, mode: OperationMode, favorite_level: int):

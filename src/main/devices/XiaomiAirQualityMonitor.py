@@ -1,8 +1,10 @@
+import logging
+
 from apscheduler.schedulers.base import BaseScheduler
 from homie.device_base import Device_Base
 from homie.node.node_base import Node_Base
 from homie.node.property.property_battery import Property_Battery
-from miio import AirQualityMonitor
+from miio import AirQualityMonitor, DeviceException
 
 from custom_properties import Property_PM25, Property_IsOn
 
@@ -26,7 +28,10 @@ class XiaomiAirQualityMonitor(Device_Base):
         scheduler.add_job(self.refresh, 'interval', seconds=config['fetch-interval-seconds'])
 
     def refresh(self):
-        status = self.device.status()
-        self.property_ison.value = status.is_on
-        self.property_pm25.value = status.aqi
-        self.property_battery.value = status.battery
+        try:
+            status = self.device.status()
+            self.property_ison.value = status.is_on
+            self.property_pm25.value = status.aqi
+            self.property_battery.value = status.battery
+        except DeviceException as e:
+            logging.getLogger('XiaomiAirQualityMonitor').warning("Device unreachable: %s" % str(e))

@@ -1,2 +1,6 @@
 #!/bin/bash
-docker run -it --rm  --network="host" --name smart-devices-to-graphite -v $(pwd)/config:/smart-devices-to-graphite/config -v $(pwd)/logs:/smart-devices-to-graphite/logs rzarajczyk/smart-devices-to-graphite:latest
+docker run -it --rm  \
+    --name smart-devices-to-mqtt \
+    -v $(pwd)/config:/smart-devices-to-mqtt/config \
+    -v $(pwd)/logs:/smart-devices-to-mqtt/logs \
+    rzarajczyk/smart-devices-to-mqtt:latest
