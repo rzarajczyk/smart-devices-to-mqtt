@@ -28,6 +28,7 @@ with open(LOGGER_CONFIGURATION, 'r') as f:
     logging_config.dictConfig(config)
 
 LOGGER = logging.getLogger("main")
+LOGGER.info("Starting application!")
 
 ########################################################################################################################
 # application configuration
