@@ -2,3 +2,5 @@
 TAG=$(date '+%Y%m%d')
 docker build -t rzarajczyk/smart-devices-to-mqtt:$TAG .
 docker tag rzarajczyk/smart-devices-to-mqtt:$TAG rzarajczyk/smart-devices-to-mqtt:latest
+docker push rzarajczyk/smart-devices-to-mqtt:$TAG
+docker push rzarajczyk/smart-devices-to-mqtt:latest
