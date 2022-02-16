@@ -47,7 +47,7 @@ class XiaomiAirHumidifier(Device_Base):
         except DeviceException as e:
             logging.getLogger('XiaomiAirHumidifier').warning("Device unreachable: %s" % str(e))
             self.property_temperature.value = -1
-            self.property_humidity.value = -1
+            self.property_humidity.value = 0
             self.property_water.value = -1
             self.property_speed.value = 'off'
 
