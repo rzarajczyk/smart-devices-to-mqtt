@@ -6,6 +6,7 @@ from logging import config as logging_config
 import yaml
 from apscheduler.schedulers.blocking import BlockingScheduler
 
+from devices.SonyBravia import SonyBravia
 from devices.XiaomiAirHumidifier import XiaomiAirHumidifier
 from devices.XiaomiAirPurifier import XiaomiAirPurifier
 from devices.XiaomiAirQualityMonitor import XiaomiAirQualityMonitor
@@ -57,7 +58,8 @@ with open(CONFIGURATION, 'r') as f:
 DEVICE_CLASSES = {
     'xiaomi-air-monitor': XiaomiAirQualityMonitor,
     'xiaomi-air-purifier': XiaomiAirPurifier,
-    'xiaomi-air-humidifier': XiaomiAirHumidifier
+    'xiaomi-air-humidifier': XiaomiAirHumidifier,
+    'sony-bravia': SonyBravia
 }
 
 LOGGER.info('Registered device classes:')

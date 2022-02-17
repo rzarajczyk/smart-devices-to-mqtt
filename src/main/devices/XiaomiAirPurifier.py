@@ -2,13 +2,11 @@ import logging
 
 from apscheduler.schedulers.base import BaseScheduler
 from homie.device_base import Device_Base
-from homie.node.node_base import Node_Base
-from homie.node.property.property_humidity import Property_Humidity
-from homie.node.property.property_speed import Property_Speed
-from homie.node.property.property_temperature import Property_Temperature
 from miio import DeviceException
 from miio.airpurifier import AirPurifier
 from miio.airpurifier import OperationMode
+
+from homie_helpers import add_property_float, add_property_enum
 
 
 class XiaomiAirPurifier(Device_Base):
@@ -18,18 +16,14 @@ class XiaomiAirPurifier(Device_Base):
             ip=config['ip'],
             token=config['token']
         )
-        status = Node_Base(self, "status", "Status", "status")
-        self.add_node(status)
-        self.property_temperature = Property_Temperature(status, unit="°C")
-        self.property_humidity = Property_Humidity(status)
-        status.add_property(self.property_temperature)
-        status.add_property(self.property_humidity)
-        speed = Node_Base(self, "speed", "Speed", "speed")
-        self.add_node(speed)
-        self.property_speed = Property_Speed(speed,
-                                             data_format="off,silent,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,auto",
-                                             set_value=self.set_speed)
-        speed.add_property(self.property_speed)
+
+        self.property_temperature = add_property_float(self, "temperature", unit="°C")
+        self.property_humidity = add_property_float(self, "humidity", unit="%", min_value=0, max_value=100)
+        self.property_speed = add_property_enum(self, "speed",
+                                                values=["off", "silent", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                                                        "10", "11", "12", "13", "14", "15", "16", "auto"],
+                                                set_handler=self.set_speed,
+                                                parent_node_id="speed")
         self.start()
         scheduler.add_job(self.refresh, 'interval', seconds=config['fetch-interval-seconds'])
 

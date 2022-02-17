@@ -2,11 +2,9 @@ import logging
 
 from apscheduler.schedulers.base import BaseScheduler
 from homie.device_base import Device_Base
-from homie.node.node_base import Node_Base
-from homie.node.property.property_battery import Property_Battery
 from miio import AirQualityMonitor, DeviceException
 
-from custom_properties import Property_PM25, Property_IsOn
+from homie_helpers import add_property_int, add_property_float, add_property_boolean
 
 
 class XiaomiAirQualityMonitor(Device_Base):
@@ -16,14 +14,10 @@ class XiaomiAirQualityMonitor(Device_Base):
             ip=config['ip'],
             token=config['token']
         )
-        status = Node_Base(self, "status", "Status", "status")
-        self.add_node(status)
-        self.property_pm25 = Property_PM25(status)
-        self.property_battery = Property_Battery(status)
-        self.property_ison = Property_IsOn(status)
-        status.add_property(self.property_pm25)
-        status.add_property(self.property_battery)
-        status.add_property(self.property_ison)
+        self.property_pm25 = add_property_float(self, "pm25", property_name="PM 2.5", unit="μg/m³")
+        self.property_battery = add_property_int(self, "battery", unit="%", min_value=0, max_value=100)
+        self.property_ison = add_property_boolean(self, "ison", property_name="Is on")
+
         self.start()
         scheduler.add_job(self.refresh, 'interval', seconds=config['fetch-interval-seconds'])
 

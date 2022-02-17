@@ -20,3 +20,10 @@ devices:
     ip: ≪fill me≫
     token: ≪fill me≫
     fetch-interval-seconds: 5
+  sony-bravia:
+    type: sony-bravia
+    ip: ≪fill me≫
+    mac: ≪fill me≫
+    pin: ≪fill me≫
+    unique-id: ≪fill me≫
+    fetch-interval-seconds: 5
