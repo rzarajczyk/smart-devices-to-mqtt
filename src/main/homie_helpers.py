@@ -5,6 +5,7 @@ from homie.node.property.property_boolean import Property_Boolean
 from homie.node.property.property_enum import Property_Enum
 from homie.node.property.property_float import Property_Float
 from homie.node.property.property_integer import Property_Integer
+from homie.node.property.property_string import Property_String
 
 
 def _init(device: Device_Base,
@@ -105,5 +106,24 @@ def add_property_enum(device: Device_Base,
                          unit=unit,
                          data_format=",".join(values),
                          set_value=set_handler)
+    node.add_property(prop)
+    return prop
+
+
+def add_property_string(device: Device_Base,
+                        property_id: str,
+                        property_name: str = None,
+                        parent_node_id: str = "status",
+                        parent_node_name: str = None,
+                        retained: bool = True,
+                        set_handler=None) -> Property_Base:
+    property_name, node = _init(device, property_id, property_name, parent_node_id, parent_node_name)
+    settable = set_handler is not None
+    prop = Property_String(node,
+                           id=property_id,
+                           name=property_name,
+                           settable=settable,
+                           retained=retained,
+                           set_value=set_handler)
     node.add_property(prop)
     return prop
