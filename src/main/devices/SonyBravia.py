@@ -56,7 +56,7 @@ class SonyBravia(Device_Base):
         self.property_player_url = add_property_string(self, "player-content-url", parent_node_id="player")
         self.property_player_type = add_property_string(self, "player-content-type", parent_node_id="player")
 
-        add_property_string(self, "play", parent_node_id="player", retained=False, set_handler=self.play_url)
+        add_property_string(self, "cast", parent_node_id="player", retained=False, set_handler=self.play_url)
 
         self.pin: str = config['pin']
         self.id: str = config['unique-id']
