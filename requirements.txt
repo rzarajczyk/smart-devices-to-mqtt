@@ -4,3 +4,4 @@ APScheduler~=3.8.1
 python-miio
 bravia-tv
 pychromecast
+phue
