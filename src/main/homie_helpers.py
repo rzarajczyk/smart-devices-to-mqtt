@@ -116,6 +116,7 @@ def add_property_string(device: Device_Base,
                         parent_node_id: str = "status",
                         parent_node_name: str = None,
                         retained: bool = True,
+                        unit: str = None,
                         set_handler=None) -> Property_Base:
     property_name, node = _init(device, property_id, property_name, parent_node_id, parent_node_name)
     settable = set_handler is not None
@@ -124,6 +125,7 @@ def add_property_string(device: Device_Base,
                            name=property_name,
                            settable=settable,
                            retained=retained,
+                           unit=unit,
                            set_value=set_handler)
     node.add_property(prop)
     return prop
