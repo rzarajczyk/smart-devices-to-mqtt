@@ -77,12 +77,9 @@ class PhilipsHue(Device_Base):
         add_property_int(self, 'lights-count',
                          property_name="Number of lights",
                          parent_node_id=homie_group_id).value = len(lights)
-        lumens = [self.capabilities[light_id]['maxlumen'] for light_id in lights]
-        add_property_string(self, 'lights-max-brightness',
-                            property_name="Max lights brightness",
-                            unit="lm",
-                            parent_node_id=homie_group_id
-                            ).value = str(lumens)
+        add_property_string(self, 'bulbs',
+                            property_name="Bulbs",
+                            parent_node_id=homie_group_id).value = self.create_bulbs_descriprtion(lights)
 
         if node.get_property('ison') is None:
             handler = lambda value, gid=group_id: self.set_group_ison(gid, value)
@@ -123,6 +120,17 @@ class PhilipsHue(Device_Base):
                                 parent_node_id=homie_group_id,
                                 retained=False,
                                 set_handler=handler)
+
+    def create_bulbs_descriprtion(self, lights):
+        bulbs = []
+        for light_id in lights:
+            maxlumen = self.capabilities[light_id]['maxlumen']
+            if maxlumen is None:
+                bulbs.append('Plug')
+            else:
+                name = "Ambiance" if self.capabilities[light_id]['max-ct'] else "White"
+                bulbs.append('%s %s lm' % (name, maxlumen))
+        return ", ".join(bulbs)
 
     def set_group_ison(self, group_id, value):
         if value and self.properties_bri[group_id] is not None:
