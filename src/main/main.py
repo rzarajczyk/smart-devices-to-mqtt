@@ -1,6 +1,8 @@
 import logging
 import os
 from logging import config as logging_config
+from pathlib import Path
+
 import yaml
 from apscheduler.schedulers.blocking import BlockingScheduler
 
@@ -11,13 +13,9 @@ from devices.XiaomiAirPurifier import XiaomiAirPurifier
 from devices.XiaomiAirQualityMonitor import XiaomiAirQualityMonitor
 
 ########################################################################################################################
-
-os.chdir('../..')
-
-########################################################################################################################
 # logging configuration
 
-with open("./logging.yaml", 'r') as f:
+with open("logging.yaml", 'r') as f:
     config = yaml.full_load(f)
     logging_config.dictConfig(config)
 
@@ -27,7 +25,7 @@ LOGGER.info("Starting application!")
 ########################################################################################################################
 # application configuration
 
-with open('./config/smart-devices-to-mqtt.yaml', 'r') as f:
+with open('config/smart-devices-to-mqtt.yaml', 'r') as f:
     config = yaml.full_load(f)
 
     MQTT_SETTINGS = {
