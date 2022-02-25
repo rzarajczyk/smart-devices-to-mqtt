@@ -15,7 +15,7 @@ handlers:
   file:
     class : logging.handlers.RotatingFileHandler
     formatter: standard
-    filename: /smart-devices-to-mqtt/logs/output.txt
+    filename: ./logs/smart-devices-to-mqtt.txt
     maxBytes: 1024000
     backupCount: 3
 formatters:
