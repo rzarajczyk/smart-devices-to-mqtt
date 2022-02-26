@@ -133,7 +133,7 @@ class PhilipsHue(Device_Base):
         return ", ".join(bulbs)
 
     def set_group_ison(self, group_id, value):
-        if value and self.properties_bri[group_id] is not None:
+        if value and group_id in self.properties_bri:
             bri = self.properties_bri[group_id].value
             self.logger.info("Setting group %s ison to %s and setting bri to %s" % (group_id, value, bri))
             data = {'on': True, 'bri': to_254(bri)}
