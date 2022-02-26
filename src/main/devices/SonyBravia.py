@@ -29,6 +29,8 @@ class SonyBravia(Device_Base):
 
         self.property_volume = add_property_int(self, "volume-level",
                                                 parent_node_id='volume',
+                                                min_value=0,
+                                                max_value=80,
                                                 set_handler=self.set_volume)
         self.property_power = add_property_enum(self, "power-status",
                                                 parent_node_id='power',
