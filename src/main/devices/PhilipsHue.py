@@ -98,7 +98,7 @@ class PhilipsHue(Device_Base):
                                             set_handler=handler)
             self.properties_bri[group_id] = property_bri
             add_property_string(self, 'brightness-transition',
-                                property_name="Smooth dim",
+                                property_name="Change Brightness",
                                 parent_node_id=homie_group_id,
                                 retained=False,
                                 set_handler=handler)
@@ -116,7 +116,7 @@ class PhilipsHue(Device_Base):
                                            set_handler=handler)
             self.properties_ct[group_id] = property_ct
             add_property_string(self, 'color-temperature-transition',
-                                property_name="Smooth Color Temperature change",
+                                property_name="Change Color Temp",
                                 parent_node_id=homie_group_id,
                                 retained=False,
                                 set_handler=handler)
