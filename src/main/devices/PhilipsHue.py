@@ -8,6 +8,8 @@ from phue import Bridge
 
 from homie_helpers import add_property_string, add_property_boolean, add_property_int
 
+DEFAULT_TRANSITION_TIME_DS = 5
+
 
 class PhilipsHue(Device_Base):
     def __init__(self, device_id, config, mqtt_settings, scheduler: BaseScheduler):
@@ -137,38 +139,38 @@ class PhilipsHue(Device_Base):
             bri = self.properties_bri[group_id].value
             self.logger.info("Setting group %s ison to %s and setting bri to %s" % (group_id, value, bri))
             data = {'on': True, 'bri': to_254(bri)}
-            self.bridge.set_group(int(group_id), data, transitiontime=5)
+            self.bridge.set_group(int(group_id), data, transitiontime=DEFAULT_TRANSITION_TIME_DS)
         else:
             self.logger.info("Setting group %s ison to %s" % (group_id, value))
-            self.bridge.set_group(int(group_id), 'on', value, transitiontime=5)
+            self.bridge.set_group(int(group_id), 'on', value, transitiontime=DEFAULT_TRANSITION_TIME_DS)
 
     def set_group_bri(self, group_id, value):
         if isinstance(value, int):
             self.logger.info("Setting group %s bri to %s" % (group_id, value))
-            self.bridge.set_group(int(group_id), 'bri', to_254(value), transitiontime=5)
+            self.bridge.set_group(int(group_id), 'bri', to_254(value), transitiontime=DEFAULT_TRANSITION_TIME_DS)
         elif ',' not in value:
             bri = int(value)
             self.logger.info("Setting group %s bri to %s" % (group_id, bri))
-            self.bridge.set_group(int(group_id), 'bri', to_254(bri), transitiontime=5)
+            self.bridge.set_group(int(group_id), 'bri', to_254(bri), transitiontime=DEFAULT_TRANSITION_TIME_DS)
         else:
             bri = int(value.split(",")[0])
             time = int(value.split(",")[1])
             self.logger.info("Setting group %s bri to %s during %s" % (group_id, bri, time))
-            self.bridge.set_group(int(group_id), 'bri', to_254(bri), transitiontime=time)
+            self.bridge.set_group(int(group_id), 'bri', to_254(bri), transitiontime=to_ds(time))
 
     def set_group_ct(self, group_id, value):
         if isinstance(value, int):
             self.logger.info("Setting group %s ct to %s" % (group_id, value))
-            self.bridge.set_group(int(group_id), 'ct', to_mired(value), transitiontime=5)
+            self.bridge.set_group(int(group_id), 'ct', to_mired(value), transitiontime=DEFAULT_TRANSITION_TIME_DS)
         elif ',' not in value:
             ct = int(value)
             self.logger.info("Setting group %s ct to %s" % (group_id, ct))
-            self.bridge.set_group(int(group_id), 'ct', to_mired(ct), transitiontime=5)
+            self.bridge.set_group(int(group_id), 'ct', to_mired(ct), transitiontime=DEFAULT_TRANSITION_TIME_DS)
         else:
             ct = int(value.split(",")[0])
             time = int(value.split(",")[1])
             self.logger.info("Setting group %s ct to %s" % (group_id, ct))
-            self.bridge.set_group(int(group_id), 'ct', to_mired(ct), transitiontime=time)
+            self.bridge.set_group(int(group_id), 'ct', to_mired(ct), transitiontime=to_ds(time))
 
 
 def to_node_key(group_name: str) -> str:
@@ -185,6 +187,12 @@ def to_node_key(group_name: str) -> str:
         .replace('ć', 'c') \
         .replace('ń', 'n')
     return re.sub(r'[^a-z0-9]', '-', normalized).lstrip('-')
+
+
+def to_ds(value: float):
+    if value is None:
+        return None
+    return int(round(10 * value))
 
 
 def to_percent(value: int):
