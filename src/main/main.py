@@ -14,6 +14,7 @@ from devices.XiaomiAirQualityMonitor import XiaomiAirQualityMonitor
 
 ########################################################################################################################
 # logging configuration
+from devices.XiaomiDeskLight import XiaomiDeskLight
 
 with open("logging.yaml", 'r') as f:
     config = yaml.full_load(f)
@@ -46,6 +47,7 @@ DEVICE_CLASSES = {
     'xiaomi-air-monitor': XiaomiAirQualityMonitor,
     'xiaomi-air-purifier': XiaomiAirPurifier,
     'xiaomi-air-humidifier': XiaomiAirHumidifier,
+    'xiaomi-desk-light': XiaomiDeskLight,
     'sony-bravia': SonyBravia,
     'philips-hue': PhilipsHue
 }

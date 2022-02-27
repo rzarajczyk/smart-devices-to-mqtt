@@ -115,6 +115,7 @@ class PhilipsHue(Device_Base):
                                            min_value=min_cts,
                                            max_value=max_cts,
                                            parent_node_id=homie_group_id,
+                                           unit="K",
                                            set_handler=handler)
             self.properties_ct[group_id] = property_ct
             add_property_string(self, 'color-temperature-transition',
