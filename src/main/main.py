@@ -6,6 +6,7 @@ from pathlib import Path
 import yaml
 from apscheduler.schedulers.blocking import BlockingScheduler
 
+from devices.Gios import Gios
 from devices.PhilipsHue import PhilipsHue
 from devices.SonyBravia import SonyBravia
 from devices.XiaomiAirHumidifier import XiaomiAirHumidifier
@@ -49,7 +50,8 @@ DEVICE_CLASSES = {
     'xiaomi-air-humidifier': XiaomiAirHumidifier,
     'xiaomi-desk-light': XiaomiDeskLight,
     'sony-bravia': SonyBravia,
-    'philips-hue': PhilipsHue
+    'philips-hue': PhilipsHue,
+    'gios': Gios
 }
 
 LOGGER.info('Registered device classes:')

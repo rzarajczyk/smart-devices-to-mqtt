@@ -10,10 +10,11 @@ from homie_helpers import add_property_int, add_property_boolean
 class XiaomiDeskLight(Device_Base):
     def __init__(self, device_id, config, mqtt_settings, scheduler: BaseScheduler):
         super().__init__(device_id=device_id, name="Xiaomi MI LED Desk Light", mqtt_settings=mqtt_settings)
-        self.device = Yeelight(
-            ip=config['ip'],
-            token=config['token']
-        )
+        self.ip = config['ip']
+        self.token = config['token']
+
+        self.device: Yeelight = None
+
         self.property_ison = add_property_boolean(self, 'ison', property_name="Turned on", parent_node_id="state", set_handler=self.set_ison)
         self.property_bri = add_property_int(self, 'brightness', min_value=1, max_value=100, unit='%', parent_node_id="state", set_handler=self.set_bri)
         self.property_ct = add_property_int(self, 'color-temperature', min_value=2700, max_value=6500, unit="K", parent_node_id="state", set_handler=self.set_ct)
@@ -22,6 +23,11 @@ class XiaomiDeskLight(Device_Base):
 
     def refresh(self):
         try:
+            if self.device is None:
+                self.device = Yeelight(
+                    ip=self.ip,
+                    token=self.token
+                )
             status = self.device.status()
             self.property_ison.value = status.is_on
             self.property_bri.value = status.brightness
