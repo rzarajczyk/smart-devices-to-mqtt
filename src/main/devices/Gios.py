@@ -21,11 +21,11 @@ class Gios(Device_Base):
         self.station_id = config['station-id']
 
         self.properties = {
-            "C6H6": add_property_float(self, 'c6h5', property_name="Benzen (C6H6)", parent_node_id="data", unit=None),
-            "CO": add_property_float(self, 'co', property_name="Tlenek węgla (CO)", parent_node_id="data", unit=None),
-            "NO2": add_property_float(self, 'no2', property_name="Dwutlenek azotu (NO2)", parent_node_id="data", unit=None),
-            "PM10": add_property_float(self, 'pm10', property_name="Pył zawieszony PM 10", parent_node_id="data", unit=None),
-            "PM2.5": add_property_float(self, 'pm25', property_name="Pył zawieszony PM 2.5", parent_node_id="data", unit=None),
+            "C6H6": add_property_float(self, 'c6h5', property_name="Benzen (C6H6)", unit="μg/m3", parent_node_id="data"),
+            "CO": add_property_float(self, 'co', property_name="Tlenek węgla (CO)", parent_node_id="data", unit="μg/m3"),
+            "NO2": add_property_float(self, 'no2', property_name="Dwutlenek azotu (NO2)", parent_node_id="data", unit="μg/m3"),
+            "PM10": add_property_float(self, 'pm10', property_name="Pył zawieszony PM 10", parent_node_id="data", unit="μg/m3"),
+            "PM2.5": add_property_float(self, 'pm25', property_name="Pył zawieszony PM 2.5", parent_node_id="data", unit="μg/m3"),
         }
 
         scheduler.add_job(self.refresh, 'interval', seconds=config['fetch-interval-seconds'], next_run_time=datetime.now())
@@ -42,8 +42,8 @@ class Gios(Device_Base):
             last_value = data['values'][0]['value']
             last_date = data['values'][0]['date']
             self.properties[sensor_code].value = last_value
-            self.properties[sensor_code].meta['measurement-date'] = {'name': 'measurement-date', 'value': last_date}
-            self.properties[sensor_code].meta['description'] = {'name': 'description', 'value': self.describe(sensor_code, last_value)}
+            self.properties[sensor_code].meta['measurement-date'] = {'name': 'Measurement date', 'value': last_date}
+            self.properties[sensor_code].meta['description'] = {'name': 'Description', 'value': self.describe(sensor_code, last_value)}
             self.properties[sensor_code].publish_meta()
 
     def describe(self, code, value):
