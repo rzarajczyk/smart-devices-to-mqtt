@@ -42,8 +42,10 @@ class Gios(Device_Base):
             last_value = data['values'][0]['value']
             last_date = data['values'][0]['date']
             self.properties[sensor_code].value = last_value
-            self.properties[sensor_code].meta['measurement-date'] = {'name': 'Measurement date', 'value': last_date}
-            self.properties[sensor_code].meta['description'] = {'name': 'Description', 'value': self.describe(sensor_code, last_value)}
+            self.properties[sensor_code].meta = {
+                'measurement-date': {'name': 'Measurement date', 'value': last_date},
+                'description': {'name': 'Description', 'value': self.describe(sensor_code, last_value)}
+            }
             self.properties[sensor_code].publish_meta()
 
     def describe(self, code, value):
