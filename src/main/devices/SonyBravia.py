@@ -9,7 +9,7 @@ from homie.device_base import Device_Base
 from pychromecast import CastBrowser
 from pychromecast.controllers.media import MediaController
 
-from homie_helpers import add_property_int, add_property_enum, add_property_boolean, add_property_string
+from homie_helpers import add_property_int, add_property_boolean, add_property_string
 
 
 # remote codes
@@ -32,9 +32,7 @@ class SonyBravia(Device_Base):
                                                 min_value=0,
                                                 max_value=80,
                                                 set_handler=self.set_volume)
-        self.property_power = add_property_enum(self, "power-status",
-                                                parent_node_id='power',
-                                                values=["active", "standby", "off"])
+        self.property_ison = add_property_boolean(self, "ison", property_name="Turned on", parent_node_id='power', set_handler=self.set_ison)
         add_property_boolean(self, "reboot", parent_node_id='power', retained=False, set_handler=self.reboot)
         add_property_boolean(self, "turn-on", parent_node_id='power', retained=False, set_handler=self.turn_on)
         add_property_boolean(self, "turn-off", parent_node_id='power', retained=False, set_handler=self.turn_off)
@@ -83,17 +81,21 @@ class SonyBravia(Device_Base):
         self.media_controller = self.chromecast.media_controller
 
     def refresh(self):
+        ok = True
         try:
             if not self.device.is_connected():
                 self.device.connect(self.pin, self.id, self.id)
-            volume = self.device.get_volume_info()
             power = self.device.get_power_status()
-            self.property_volume.value = volume['volume'] if 'volume' in volume else -1
-            self.property_power.value = power
+            if power == 'off':
+                self.logger.warning("Sony Bravia is disconnected: %s")
+                ok = False
+            else:
+                volume = self.device.get_volume_info()
+                self.property_volume.value = volume['volume'] if 'volume' in volume else -1
+                self.property_ison.value = power == 'active'
         except Exception as e:
             self.logger.warning("Sony Bravia unreachable: %s" % str(e))
-            self.property_volume.value = -1
-            self.property_power.value = "off"
+            ok = False
         try:
             if self.chromecast is None:
                 self.chromecast_connect()
@@ -103,10 +105,8 @@ class SonyBravia(Device_Base):
             self.property_player_type.value = self.media_controller.status.content_type
         except Exception as e:
             self.logger.warning("Sony Bravia - Chromecast unreachable: %s" % str(e))
-            self.property_player_app.value = ""
-            self.property_player_state.value = ""
-            self.property_player_url.value = ""
-            self.property_player_type.value = ""
+            ok = False
+        self.state = "ready" if ok else "alert"
 
     def set_volume(self, volume):
         self.logger.info("Setting volume to: %s" % str(volume))
@@ -116,6 +116,12 @@ class SonyBravia(Device_Base):
         if value:
             self.logger.info('Rebooting')
             self.device.bravia_req_json("system", self.device._jdata_build("requestReboot", None))
+
+    def set_ison(self, value):
+        if value:
+            self.turn_on(True)
+        else:
+            self.turn_off(True)
 
     def turn_on(self, value):
         if value:

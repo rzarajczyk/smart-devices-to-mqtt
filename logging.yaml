@@ -7,6 +7,10 @@ loggers:
     level: WARN
   "apscheduler.executors.default":
     level: WARN
+  "pychromecast.socket_client":
+    level: INFO
+  "pychromecast.controllers":
+    level: INFO
 handlers:
   stdout:
     formatter: standard

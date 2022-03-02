@@ -1,5 +1,4 @@
 import logging
-import re
 
 from apscheduler.schedulers.base import BaseScheduler
 from homie.device_base import Device_Base
@@ -28,36 +27,40 @@ class PhilipsHue(Device_Base):
         scheduler.add_job(self.refresh, 'interval', seconds=config['fetch-interval-seconds'])
 
     def refresh(self):
-        status = self.bridge.get_api()
-        if self.first_run:
-            self.collect_capabilities(status)
-        for group_id in status['groups']:
-            name: str = status['groups'][group_id]['name']
-            is_on = status['groups'][group_id]['action']['on']
-            bri = status['groups'][group_id]['action'].get('bri', None)
-            ct = status['groups'][group_id]['action'].get('ct', None)
-            lights = status['groups'][group_id]['lights']
+        try:
+            status = self.bridge.get_api()
+            if self.first_run:
+                self.collect_capabilities(status)
+            for group_id in status['groups']:
+                name: str = status['groups'][group_id]['name']
+                is_on = status['groups'][group_id]['action']['on']
+                bri = status['groups'][group_id]['action'].get('bri', None)
+                ct = status['groups'][group_id]['action'].get('ct', None)
+                lights = status['groups'][group_id]['lights']
 
-            homie_group_id = create_homie_id(name)
-            if self.get_node(homie_group_id) is None:
-                self.add_node_for_group(group_name=name,
-                                        group_id=group_id,
-                                        homie_group_id=homie_group_id,
-                                        lights=lights,
-                                        has_bri=bri is not None,
-                                        has_ct=ct is not None)
+                homie_group_id = create_homie_id(name)
+                if self.get_node(homie_group_id) is None:
+                    self.add_node_for_group(group_name=name,
+                                            group_id=group_id,
+                                            homie_group_id=homie_group_id,
+                                            lights=lights,
+                                            has_bri=bri is not None,
+                                            has_ct=ct is not None)
 
-            self.properties_ison[group_id].value = is_on
-            if bri is not None:
-                self.properties_bri[group_id].value = to_percent(bri)
-            if ct is not None:
-                self.properties_ct[group_id].value = to_kelvin(ct)
+                self.properties_ison[group_id].value = is_on
+                if bri is not None:
+                    self.properties_bri[group_id].value = to_percent(bri)
+                if ct is not None:
+                    self.properties_ct[group_id].value = to_kelvin(ct)
 
-        if self.first_run:
-            self.start()
-            self.first_run = False
-            self.state = "ready"
-            self.logger.info('Philips Hue integration started!')
+            if self.first_run:
+                self.start()
+                self.first_run = False
+                self.state = "ready"
+                self.logger.info('Philips Hue integration started!')
+        except Exception as e:
+            self.logger.warning("Hue bridge unreachable: %s" % str(e))
+            self.state = "alert"
 
     def collect_capabilities(self, status):
         # print(json.dumps(status, indent=4))
@@ -135,7 +138,7 @@ class PhilipsHue(Device_Base):
             else:
                 name = "Ambiance" if self.capabilities[light_id]['max-ct'] else "White"
                 bulbs.append('%s %s lm' % (name, maxlumen))
-        return ", ".join(bulbs)
+        return str(bulbs)
 
     def set_group_ison(self, group_id, value):
         if value and group_id in self.properties_bri:
