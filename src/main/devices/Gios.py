@@ -5,7 +5,7 @@ import requests
 from apscheduler.schedulers.base import BaseScheduler
 from homie.device_base import Device_Base
 
-from homie_helpers import add_property_float
+from homie_helpers import add_property_float, to_homie_meta
 
 
 class Gios(Device_Base):
@@ -22,11 +22,11 @@ class Gios(Device_Base):
         self.station_id = config['station-id']
 
         self.properties = {
-            "C6H6": add_property_float(self, 'c6h5', property_name="Benzen (C6H6)", unit="μg/m3", parent_node_id="data"),
-            "CO": add_property_float(self, 'co', property_name="Tlenek węgla (CO)", parent_node_id="data", unit="μg/m3"),
-            "NO2": add_property_float(self, 'no2', property_name="Dwutlenek azotu (NO2)", parent_node_id="data", unit="μg/m3"),
-            "PM10": add_property_float(self, 'pm10', property_name="Pył zawieszony PM 10", parent_node_id="data", unit="μg/m3"),
-            "PM2.5": add_property_float(self, 'pm25', property_name="Pył zawieszony PM 2.5", parent_node_id="data", unit="μg/m3"),
+            "C6H6": add_property_float(self, 'c6h5', property_name="Benzen (C6H6)", unit="μg/m3", parent_node_id="measurements", meta={'Measurement date': '0', 'Description': ''}),
+            "CO": add_property_float(self, 'co', property_name="Tlenek węgla (CO)", parent_node_id="measurements", unit="μg/m3", meta={'Measurement date': '1', 'Description': ''}),
+            "NO2": add_property_float(self, 'no2', property_name="Dwutlenek azotu (NO2)", parent_node_id="measurements", unit="μg/m3", meta={'Measurement date': '2', 'Description': ''}),
+            "PM10": add_property_float(self, 'pm10', property_name="Pył zawieszony PM 10", parent_node_id="measurements", unit="μg/m3", meta={'Measurement date': '3', 'Description': ''}),
+            "PM2.5": add_property_float(self, 'pm25', property_name="Pył zawieszony PM 2.5", parent_node_id="measurements", unit="μg/m3", meta={'Measurement date': '4', 'Description': ''}),
         }
 
         scheduler.add_job(self.refresh, 'interval', seconds=config['fetch-interval-seconds'], next_run_time=datetime.now())
@@ -43,12 +43,10 @@ class Gios(Device_Base):
                 data = requests.get('http://api.gios.gov.pl/pjp-api/rest/data/getData/%s' % sensor_id).json()
                 last_value = data['values'][0]['value']
                 last_date = data['values'][0]['date']
-                self.properties[sensor_code].value = last_value
-                # self.properties[sensor_code].meta = {
-                #     'measurement-date': {'name': 'Measurement date', 'value': last_date},
-                #     'description': {'name': 'Description', 'value': self.describe(sensor_code, last_value)}
-                # }
-                # self.properties[sensor_code].publish_meta()
+                property = self.properties[sensor_code]
+                property.value = last_value
+                property.meta = to_homie_meta(meta={'Measurement date': last_date, 'Description': ''})
+                property.publish_meta()
             self.state = "ready"
         except Exception as e:
             logging.getLogger('Gios').warning("Service unreachable: %s" % str(e))

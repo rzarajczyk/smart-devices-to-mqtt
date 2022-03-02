@@ -1,3 +1,5 @@
+import re
+
 from homie.device_base import Device_Base
 from homie.node.node_base import Node_Base
 from homie.node.property.property_base import Property_Base
@@ -6,6 +8,22 @@ from homie.node.property.property_enum import Property_Enum
 from homie.node.property.property_float import Property_Float
 from homie.node.property.property_integer import Property_Integer
 from homie.node.property.property_string import Property_String
+
+
+def create_homie_id(group_name: str) -> str:
+    normalized = group_name \
+        .lower() \
+        .replace('ł', 'l') \
+        .replace('ę', 'e') \
+        .replace('ó', 'o') \
+        .replace('ą', 'a') \
+        .replace('ś', 's') \
+        .replace('ł', 'l') \
+        .replace('ż', 'z') \
+        .replace('ź', 'z') \
+        .replace('ć', 'c') \
+        .replace('ń', 'n')
+    return re.sub(r'[^a-z0-9]', '-', normalized).lstrip('-')
 
 
 def _init(device: Device_Base,
@@ -20,6 +38,17 @@ def _init(device: Device_Base,
         device.add_node(node)
     node: Node_Base = device.get_node(parent_node_id)
     return property_name, node
+
+
+def to_homie_meta(meta: dict) -> dict:
+    result = {}
+    for key in meta:
+        value = meta[key]
+        result[create_homie_id(key)] = {
+            'name': key,
+            'value': value
+        }
+    return result
 
 
 def add_property_int(device: Device_Base,
@@ -53,7 +82,8 @@ def add_property_float(device: Device_Base,
                        set_handler=None,
                        unit=None,
                        min_value: int = None,
-                       max_value: int = None) -> Property_Base:
+                       max_value: int = None,
+                       meta: dict = {}) -> Property_Base:
     property_name, node = _init(device, property_id, property_name, parent_node_id, parent_node_name)
     settable = set_handler is not None
     data_format = "%s:%s" % (min_value, max_value) if min_value is not None and max_value is not None else None
@@ -63,7 +93,8 @@ def add_property_float(device: Device_Base,
                           settable=settable,
                           unit=unit,
                           data_format=data_format,
-                          set_value=set_handler)
+                          set_value=set_handler,
+                          meta=to_homie_meta(meta))
     node.add_property(prop)
     return prop
 

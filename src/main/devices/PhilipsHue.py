@@ -6,7 +6,7 @@ from homie.device_base import Device_Base
 from homie.node.node_base import Node_Base
 from phue import Bridge
 
-from homie_helpers import add_property_string, add_property_boolean, add_property_int
+from homie_helpers import add_property_string, add_property_boolean, add_property_int, create_homie_id
 
 DEFAULT_TRANSITION_TIME_DS = 5
 
@@ -38,7 +38,7 @@ class PhilipsHue(Device_Base):
             ct = status['groups'][group_id]['action'].get('ct', None)
             lights = status['groups'][group_id]['lights']
 
-            homie_group_id = to_node_key(name)
+            homie_group_id = create_homie_id(name)
             if self.get_node(homie_group_id) is None:
                 self.add_node_for_group(group_name=name,
                                         group_id=group_id,
@@ -174,22 +174,6 @@ class PhilipsHue(Device_Base):
             time = int(value.split(",")[1])
             self.logger.info("Setting group %s ct to %s" % (group_id, ct))
             self.bridge.set_group(int(group_id), 'ct', to_mired(ct), transitiontime=to_ds(time))
-
-
-def to_node_key(group_name: str) -> str:
-    normalized = group_name \
-        .lower() \
-        .replace('ł', 'l') \
-        .replace('ę', 'e') \
-        .replace('ó', 'o') \
-        .replace('ą', 'a') \
-        .replace('ś', 's') \
-        .replace('ł', 'l') \
-        .replace('ż', 'z') \
-        .replace('ź', 'z') \
-        .replace('ć', 'c') \
-        .replace('ń', 'n')
-    return re.sub(r'[^a-z0-9]', '-', normalized).lstrip('-')
 
 
 def to_ds(value: float):
