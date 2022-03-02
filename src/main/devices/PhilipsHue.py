@@ -108,6 +108,7 @@ class PhilipsHue(Device_Base):
                                 property_name="Change Brightness",
                                 parent_node_id=homie_group_id,
                                 retained=False,
+                                data_format="$brightness-transition",
                                 set_handler=handler)
         if has_ct and node.get_property('color-temperature') is None:
             min_cts = min([self.capabilities[light_id]['min-ct'] for light_id in lights
@@ -127,6 +128,7 @@ class PhilipsHue(Device_Base):
                                 property_name="Change Color Temp",
                                 parent_node_id=homie_group_id,
                                 retained=False,
+                                data_format="$color-temperature-transition",
                                 set_handler=handler)
 
     def create_bulbs_descriprtion(self, lights):
