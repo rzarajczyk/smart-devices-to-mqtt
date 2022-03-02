@@ -20,8 +20,7 @@ class XiaomiAirPurifier(Device_Base):
         self.property_temperature = add_property_float(self, "temperature", unit="°C")
         self.property_humidity = add_property_float(self, "humidity", unit="%", min_value=0, max_value=100)
         self.property_speed = add_property_enum(self, "speed",
-                                                values=["off", "silent", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-                                                        "10", "11", "12", "13", "14", "15", "16", "auto"],
+                                                values=["off", "silent", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "auto"],
                                                 set_handler=self.set_speed,
                                                 parent_node_id="speed")
         self.start()
@@ -34,11 +33,10 @@ class XiaomiAirPurifier(Device_Base):
             self.property_temperature.value = status.temperature
             self.property_humidity.value = status.humidity
             self.property_speed.value = speed
+            self.state = "ready"
         except DeviceException as e:
             logging.getLogger('XiaomiAirPurifier').warning("Device unreachable: %s" % str(e))
-            self.property_temperature.value = -1
-            self.property_humidity.value = -1
-            self.property_speed.value = 'off'
+            self.state = "alert"
 
     @staticmethod
     def _create_speed(is_on, mode: OperationMode, favorite_level: int):

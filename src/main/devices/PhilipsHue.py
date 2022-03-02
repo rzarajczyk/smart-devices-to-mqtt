@@ -23,6 +23,7 @@ class PhilipsHue(Device_Base):
         self.first_run = True
 
         self.bridge = Bridge(config['host'], username=config['app-key'])
+        self.state = "init"
 
         scheduler.add_job(self.refresh, 'interval', seconds=config['fetch-interval-seconds'])
 
@@ -55,6 +56,7 @@ class PhilipsHue(Device_Base):
         if self.first_run:
             self.start()
             self.first_run = False
+            self.state = "ready"
             self.logger.info('Philips Hue integration started!')
 
     def collect_capabilities(self, status):

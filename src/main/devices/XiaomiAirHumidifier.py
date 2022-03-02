@@ -33,12 +33,10 @@ class XiaomiAirHumidifier(Device_Base):
             self.property_humidity.value = status.humidity
             self.property_water.value = status.water_level
             self.property_speed.value = speed
+            self.state = "ready"
         except DeviceException as e:
             logging.getLogger('XiaomiAirHumidifier').warning("Device unreachable: %s" % str(e))
-            self.property_temperature.value = -1
-            self.property_humidity.value = 0
-            self.property_water.value = -1
-            self.property_speed.value = 'off'
+            self.state = "alert"
 
     @staticmethod
     def _create_speed(is_on, mode: OperationMode):

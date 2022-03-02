@@ -27,8 +27,7 @@ class XiaomiAirQualityMonitor(Device_Base):
             self.property_ison.value = status.is_on
             self.property_pm25.value = status.aqi
             self.property_battery.value = status.battery
+            self.state = "ready"
         except DeviceException as e:
             logging.getLogger('XiaomiAirQualityMonitor').warning("Device unreachable: %s" % str(e))
-            self.property_ison.value = False
-            self.property_pm25.value = -1
-            self.property_battery.value = -1
+            self.state = "alert"

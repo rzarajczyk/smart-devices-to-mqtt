@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 import requests
@@ -33,33 +34,39 @@ class Gios(Device_Base):
         self.start()
 
     def refresh(self):
-        station_id = self.station_id
-        sensors = requests.get('http://api.gios.gov.pl/pjp-api/rest/station/sensors/%s' % station_id).json()
-        for sensor in sensors:
-            sensor_id = sensor['id']
-            sensor_code = sensor['param']['paramCode']
-            data = requests.get('http://api.gios.gov.pl/pjp-api/rest/data/getData/%s' % sensor_id).json()
-            last_value = data['values'][0]['value']
-            last_date = data['values'][0]['date']
-            self.properties[sensor_code].value = last_value
-            self.properties[sensor_code].meta = {
-                'measurement-date': {'name': 'Measurement date', 'value': last_date},
-                'description': {'name': 'Description', 'value': self.describe(sensor_code, last_value)}
-            }
-            self.properties[sensor_code].publish_meta()
+        try:
+            station_id = self.station_id
+            sensors = requests.get('http://api.gios.gov.pl/pjp-api/rest/station/sensors/%s' % station_id).json()
+            for sensor in sensors:
+                sensor_id = sensor['id']
+                sensor_code = sensor['param']['paramCode']
+                data = requests.get('http://api.gios.gov.pl/pjp-api/rest/data/getData/%s' % sensor_id).json()
+                last_value = data['values'][0]['value']
+                last_date = data['values'][0]['date']
+                self.properties[sensor_code].value = last_value
+                # self.properties[sensor_code].meta = {
+                #     'measurement-date': {'name': 'Measurement date', 'value': last_date},
+                #     'description': {'name': 'Description', 'value': self.describe(sensor_code, last_value)}
+                # }
+                # self.properties[sensor_code].publish_meta()
+            self.state = "ready"
+        except Exception as e:
+            logging.getLogger('Gios').warning("Service unreachable: %s" % str(e))
+            self.state = "alert"
 
-    def describe(self, code, value):
-        if code not in self.NORMS:
-            # return -1, ''
-            return ''
-        i = 0
-        norms = self.NORMS[code]
-        while i < len(norms):
-            l = norms[i - 1] if i > 0 else -1
-            r = norms[i]
-            if l <= value < r:
-                # return i, self.NORMS_READABLE[i]
-                return self.NORMS_READABLE[i]
-            i += 1
-        # return len(norms), self.NORMS_READABLE[len(norms)]
-        return self.NORMS_READABLE[len(norms)]
+
+def describe(self, code, value):
+    if code not in self.NORMS:
+        # return -1, ''
+        return ''
+    i = 0
+    norms = self.NORMS[code]
+    while i < len(norms):
+        l = norms[i - 1] if i > 0 else -1
+        r = norms[i]
+        if l <= value < r:
+            # return i, self.NORMS_READABLE[i]
+            return self.NORMS_READABLE[i]
+        i += 1
+    # return len(norms), self.NORMS_READABLE[len(norms)]
+    return self.NORMS_READABLE[len(norms)]

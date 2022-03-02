@@ -32,9 +32,10 @@ class XiaomiDeskLight(Device_Base):
             self.property_ison.value = status.is_on
             self.property_bri.value = status.brightness
             self.property_ct.value = status.color_temp
+            self.state = "ready"
         except DeviceException as e:
             logging.getLogger('XiaomiDeskLight').warning("Device unreachable: %s" % str(e))
-            self.property_ison.value = False
+            self.state = "alert"
 
     def set_ison(self, value):
         if value:
