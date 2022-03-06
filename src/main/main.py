@@ -8,6 +8,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 
 from devices.Gios import Gios
 from devices.PhilipsHue import PhilipsHue
+from devices.PrinterScanner import PrinterScanner
 from devices.SonyBravia import SonyBravia
 from devices.XiaomiAirHumidifier import XiaomiAirHumidifier
 from devices.XiaomiAirPurifier import XiaomiAirPurifier
@@ -51,7 +52,8 @@ DEVICE_CLASSES = {
     'xiaomi-desk-light': XiaomiDeskLight,
     'sony-bravia': SonyBravia,
     'philips-hue': PhilipsHue,
-    'gios': Gios
+    'gios': Gios,
+    'printer-scanner': PrinterScanner
 }
 
 LOGGER.info('Registered device classes:')
