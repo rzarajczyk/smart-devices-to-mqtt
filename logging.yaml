@@ -4,7 +4,7 @@ root:
   level: DEBUG
 loggers:
   "apscheduler.scheduler":
-    level: WARN
+    level: ERROR
   "apscheduler.executors.default":
     level: WARN
   "pychromecast.socket_client":
