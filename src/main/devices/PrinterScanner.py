@@ -28,15 +28,16 @@ class PrinterScanner(Device_Base):
 
     def refresh(self):
         try:
-            status = requests.get('%s/print/info' % self.url).json()
-            print(status)
+            response = requests.get('%s/print/info' % self.url)
+            response.raise_for_status()
+            status = response.json()
             self.property_c.value = int(status['cyan'])
             self.property_m.value = int(status['magenta'])
             self.property_y.value = int(status['yellow'])
             self.property_k.value = int(status['black'])
             self.property_pages.value = int(status['total_pages'])
             self.state = "ready"
-        except DeviceException as e:
+        except Exception as e:
             logging.getLogger('HPPrinterScanner').warning("Device unreachable: %s" % str(e))
             self.state = "alert"
 
