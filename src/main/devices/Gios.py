@@ -5,7 +5,7 @@ import requests
 from apscheduler.schedulers.base import BaseScheduler
 from homie.device_base import Device_Base
 
-from homie_helpers import add_property_float, to_homie_meta
+from homie_helpers import add_property_float
 
 
 class Gios(Device_Base):
@@ -45,8 +45,7 @@ class Gios(Device_Base):
                 last_date = data['values'][0]['date']
                 property = self.properties[sensor_code]
                 property.value = last_value
-                property.meta = to_homie_meta(meta={'Measurement date': last_date, 'Description': ''})
-                property.publish_meta()
+                property.meta = {'Measurement date': last_date, 'Description': ''}
             self.state = "ready"
         except Exception as e:
             logging.getLogger('Gios').warning("Service unreachable: %s" % str(e))

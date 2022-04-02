@@ -1,6 +1,6 @@
 version: 1
 root:
-  handlers: ["stdout", "file"]
+  handlers: ["stdout"]
   level: DEBUG
 loggers:
   "apscheduler.scheduler":
@@ -16,12 +16,6 @@ handlers:
     formatter: standard
     class: logging.StreamHandler
     level: DEBUG
-  file:
-    class : logging.handlers.RotatingFileHandler
-    formatter: standard
-    filename: ./logs/smart-devices-to-mqtt.txt
-    maxBytes: 1024000
-    backupCount: 3
 formatters:
   standard:
     format: "%(levelname)-8s | %(asctime)s | %(threadName)-25s | %(name)s: %(message)s"

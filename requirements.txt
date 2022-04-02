@@ -5,3 +5,4 @@ python-miio
 bravia-tv
 pychromecast
 phue
+homie-helpers~=0.0.2
