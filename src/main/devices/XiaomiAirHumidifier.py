@@ -1,42 +1,41 @@
 import logging
 
 from apscheduler.schedulers.base import BaseScheduler
-from homie.device_base import Device_Base
+from homie_helpers import Homie, FloatProperty, EnumProperty, IntProperty, Node, State
 from miio import AirHumidifierMiot, DeviceException
 from miio.airhumidifier_miot import OperationMode
 
-from homie_helpers import add_property_float, add_property_enum, add_property_int
 
-
-class XiaomiAirHumidifier(Device_Base):
+class XiaomiAirHumidifier:
     def __init__(self, device_id, config, mqtt_settings, scheduler: BaseScheduler):
-        super().__init__(device_id=device_id, name="Xiaomi Smart Humidifier", mqtt_settings=mqtt_settings)
         self.device = AirHumidifierMiot(
             ip=config['ip'],
             token=config['token']
         )
-        self.property_temperature = add_property_float(self, "temperature", unit="°C")
-        self.property_humidity = add_property_float(self, "humidity", unit="%", min_value=0, max_value=100)
-        self.property_water = add_property_int(self, "water", property_name="Water level")
-        self.property_speed = add_property_enum(self, "speed",
-                                                values=["off", "low", "mid", "high", "auto"],
-                                                set_handler=self.set_speed,
-                                                parent_node_id="speed")
-        self.start()
+        self.homie = Homie(mqtt_settings, device_id, "Xiaomi Smart Humidifier", nodes=[
+            Node("status", properties=[
+                FloatProperty("temperature", unit="°C"),
+                FloatProperty("humidity", unit="%", min_value=0, max_value=100),
+                IntProperty("water", name="Water level"),
+            ]),
+            Node("speed", properties=[
+                EnumProperty("speed", values=["off", "low", "mid", "high", "auto"], set_handler=self.set_speed)
+            ])
+        ])
         scheduler.add_job(self.refresh, 'interval', seconds=config['fetch-interval-seconds'])
 
     def refresh(self):
         try:
             status = self.device.status()
             speed = self._create_speed(status.is_on, status.mode)
-            self.property_temperature.value = status.temperature
-            self.property_humidity.value = status.humidity
-            self.property_water.value = status.water_level
-            self.property_speed.value = speed
-            self.state = "ready"
+            self.homie['temperature'] = status.temperature
+            self.homie['humidity'] = status.temperature
+            self.homie['water'] = status.water_level
+            self.homie['speed'] = speed
+            self.homie.state = State.READY
         except DeviceException as e:
             logging.getLogger('XiaomiAirHumidifier').warning("Device unreachable: %s" % str(e))
-            self.state = "alert"
+            self.homie.state = State.ALERT
 
     @staticmethod
     def _create_speed(is_on, mode: OperationMode):

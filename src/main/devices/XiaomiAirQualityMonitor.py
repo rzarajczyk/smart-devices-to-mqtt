@@ -1,24 +1,23 @@
 import logging
 
 from apscheduler.schedulers.base import BaseScheduler
-from homie.device_base import Device_Base
+from homie_helpers import IntProperty, FloatProperty, BooleanProperty, Homie, Node, State
 from miio import AirQualityMonitor, DeviceException
 
-from homie_helpers import add_property_int, add_property_float, add_property_boolean
 
-
-class XiaomiAirQualityMonitor(Device_Base):
+class XiaomiAirQualityMonitor:
     def __init__(self, device_id, config, mqtt_settings, scheduler: BaseScheduler):
-        super().__init__(device_id=device_id, name="Xiaomi AirQuality Monitor", mqtt_settings=mqtt_settings)
         self.device = AirQualityMonitor(
             ip=config['ip'],
             token=config['token']
         )
-        self.property_pm25 = add_property_float(self, "pm25", property_name="PM 2.5", unit="μg/m³")
-        self.property_battery = add_property_int(self, "battery", unit="%", min_value=0, max_value=100)
-        self.property_ison = add_property_boolean(self, "ison", property_name="Is on")
+        self.property_pm25 = FloatProperty("pm25", name="PM 2.5", unit="μg/m³")
+        self.property_battery = IntProperty("battery", unit="%", min_value=0, max_value=100)
+        self.property_ison = BooleanProperty("ison", name="Is on")
 
-        self.start()
+        self.homie = Homie(mqtt_settings, device_id, "Xiaomi AirQuality Monitor", nodes=[
+            Node("status", properties=[self.property_pm25, self.property_battery, self.property_ison])
+        ])
         scheduler.add_job(self.refresh, 'interval', seconds=config['fetch-interval-seconds'])
 
     def refresh(self):
@@ -27,7 +26,7 @@ class XiaomiAirQualityMonitor(Device_Base):
             self.property_ison.value = status.is_on
             self.property_pm25.value = status.aqi
             self.property_battery.value = status.battery
-            self.state = "ready"
+            self.homie.state = State.READY
         except DeviceException as e:
             logging.getLogger('XiaomiAirQualityMonitor').warning("Device unreachable: %s" % str(e))
-            self.state = "alert"
+            self.homie.state = State.ALERT

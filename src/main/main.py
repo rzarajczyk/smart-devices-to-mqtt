@@ -1,10 +1,9 @@
 import logging
-import os
 from logging import config as logging_config
-from pathlib import Path
 
 import yaml
 from apscheduler.schedulers.blocking import BlockingScheduler
+from homie_helpers import HomieSettings
 
 from devices.Gios import Gios
 from devices.PhilipsHue import PhilipsHue
@@ -13,7 +12,6 @@ from devices.SonyBravia import SonyBravia
 from devices.XiaomiAirHumidifier import XiaomiAirHumidifier
 from devices.XiaomiAirPurifier import XiaomiAirPurifier
 from devices.XiaomiAirQualityMonitor import XiaomiAirQualityMonitor
-
 ########################################################################################################################
 # logging configuration
 from devices.XiaomiDeskLight import XiaomiDeskLight
@@ -31,13 +29,12 @@ LOGGER.info("Starting application!")
 with open('config/smart-devices-to-mqtt.yaml', 'r') as f:
     config = yaml.full_load(f)
 
-    MQTT_SETTINGS = {
-        'MQTT_BROKER': config['mqtt']['host'],
-        'MQTT_PORT': config['mqtt']['port'],
-        'MQTT_USERNAME': config['mqtt']['user'],
-        'MQTT_PASSWORD': config['mqtt']['password'],
-        'MQTT_SHARE_CLIENT': True
-    }
+    MQTT_SETTINGS = HomieSettings(
+        broker=config['mqtt']['host'],
+        port=config['mqtt']['port'],
+        username=config['mqtt']['user'],
+        password=config['mqtt']['password']
+    )
 
     DEVICES_CONFIG = config['devices']
 

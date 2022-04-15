@@ -5,19 +5,16 @@ import urllib.request
 import pychromecast
 from apscheduler.schedulers.base import BaseScheduler
 from bravia_tv import BraviaRC
-from homie.device_base import Device_Base
+from homie_helpers import Homie, Node, StringProperty, State, IntProperty, BooleanProperty
 from pychromecast import CastBrowser
 from pychromecast.controllers.media import MediaController
-
-from homie_helpers import add_property_int, add_property_boolean, add_property_string
 
 
 # remote codes
 # https://github.com/FricoRico/Homey.SonyBraviaAndroidTV/blob/develop/definitions/remote-control-codes.js
 
-class SonyBravia(Device_Base):
+class SonyBravia:
     def __init__(self, device_id, config, mqtt_settings, scheduler: BaseScheduler):
-        super().__init__(device_id=device_id, name="Sony Bravia Android TV", mqtt_settings=mqtt_settings)
         self.logger = logging.getLogger('SonyBravia')
 
         self.device = BraviaRC(config['ip'], mac=config['mac'])
@@ -27,41 +24,51 @@ class SonyBravia(Device_Base):
         self.chromecast: pychromecast.Chromecast = None
         self.media_controller: MediaController = None
 
-        self.property_volume = add_property_int(self, "volume-level",
-                                                parent_node_id='volume',
-                                                min_value=0,
-                                                max_value=80,
-                                                set_handler=self.set_volume)
-        self.property_ison = add_property_boolean(self, "ison", property_name="Turned on", parent_node_id='power', set_handler=self.set_ison)
-        add_property_boolean(self, "reboot", parent_node_id='power', retained=False, set_handler=self.reboot)
-        add_property_boolean(self, "turn-on", parent_node_id='power', retained=False, set_handler=self.turn_on)
-        add_property_boolean(self, "turn-off", parent_node_id='power', retained=False, set_handler=self.turn_off)
+        self.property_volume = IntProperty("volume-level",
+                                           min_value=0,
+                                           max_value=80,
+                                           set_handler=self.set_volume)
+        self.property_ison = BooleanProperty("ison", name="Turned on", set_handler=self.set_ison)
 
-        add_property_boolean(self, "play", parent_node_id='controller', retained=False, set_handler=self.play)
-        add_property_boolean(self, "pause", parent_node_id='controller', retained=False, set_handler=self.pause)
-        add_property_boolean(self, "next", parent_node_id='controller', retained=False, set_handler=self.next)
-        add_property_boolean(self, "previous", parent_node_id='controller', retained=False, set_handler=self.previous)
+        self.property_player_app = StringProperty("player-app")
+        self.property_player_state = StringProperty("player-state")
+        self.property_player_url = StringProperty("player-content-url")
+        self.property_player_type = StringProperty("player-content-type")
 
-        add_property_boolean(self, "up", parent_node_id='controller', retained=False, set_handler=self.up)
-        add_property_boolean(self, "down", parent_node_id='controller', retained=False, set_handler=self.down)
-        add_property_boolean(self, "left", parent_node_id='controller', retained=False, set_handler=self.left)
-        add_property_boolean(self, "right", parent_node_id='controller', retained=False, set_handler=self.right)
-        add_property_boolean(self, "confirm", parent_node_id='controller', retained=False, set_handler=self.confirm)
-        add_property_boolean(self, "back", parent_node_id='controller', retained=False, set_handler=self.back)
-        add_property_boolean(self, "home", parent_node_id='controller', retained=False, set_handler=self.home)
-        add_property_boolean(self, "input", parent_node_id='controller', retained=False, set_handler=self.input)
-
-        self.property_player_app = add_property_string(self, "player-app", parent_node_id="player")
-        self.property_player_state = add_property_string(self, "player-state", parent_node_id="player")
-        self.property_player_url = add_property_string(self, "player-content-url", parent_node_id="player")
-        self.property_player_type = add_property_string(self, "player-content-type", parent_node_id="player")
-
-        add_property_string(self, "cast", parent_node_id="player", retained=False, set_handler=self.play_url)
+        self.homie = Homie(mqtt_settings, device_id, "Sony Bravia Android TV", nodes=[
+            Node("volume", properties=[self.property_volume]),
+            Node("power", properties=[self.property_ison]),
+            Node("power", properties=[
+                BooleanProperty("reboot", retained=False, set_handler=self.reboot),
+                BooleanProperty("turn-on", retained=False, set_handler=self.turn_on),
+                BooleanProperty("turn-off", retained=False, set_handler=self.turn_off)
+            ]),
+            Node("controller", properties=[
+                BooleanProperty("play", retained=False, set_handler=self.play),
+                BooleanProperty("pause", retained=False, set_handler=self.pause),
+                BooleanProperty("next", retained=False, set_handler=self.next),
+                BooleanProperty("previous", retained=False, set_handler=self.previous),
+                BooleanProperty("up", retained=False, set_handler=self.up),
+                BooleanProperty("down", retained=False, set_handler=self.down),
+                BooleanProperty("left", retained=False, set_handler=self.left),
+                BooleanProperty("right", retained=False, set_handler=self.right),
+                BooleanProperty("confirm", retained=False, set_handler=self.confirm),
+                BooleanProperty("back", retained=False, set_handler=self.back),
+                BooleanProperty("home", retained=False, set_handler=self.home),
+                BooleanProperty("input", retained=False, set_handler=self.input)
+            ]),
+            Node("player", properties=[
+                self.property_player_app,
+                self.property_player_url,
+                self.property_player_state,
+                self.property_player_type,
+                StringProperty("cast", retained=False, set_handler=self.play_url)
+            ])
+        ])
 
         self.pin: str = config['pin']
         self.id: str = config['unique-id']
 
-        self.start()
         scheduler.add_job(self.refresh, 'interval', seconds=config['fetch-interval-seconds'])
 
     def chromecast_connect(self):
@@ -92,7 +99,7 @@ class SonyBravia(Device_Base):
             else:
                 volume = self.device.get_volume_info()
                 self.property_volume.value = volume['volume'] if 'volume' in volume else -1
-                self.property_ison.value = power == 'active'
+                self.homie['ison'] = power == 'active'
         except Exception as e:
             self.logger.warning("Sony Bravia unreachable: %s" % str(e))
             ok = False
@@ -106,7 +113,7 @@ class SonyBravia(Device_Base):
         except Exception as e:
             self.logger.warning("Sony Bravia - Chromecast unreachable: %s" % str(e))
             ok = False
-        self.state = "ready" if ok else "alert"
+        self.homie.state = State.READY if ok else State.ALERT
 
     def set_volume(self, volume):
         self.logger.info("Setting volume to: %s" % str(volume))

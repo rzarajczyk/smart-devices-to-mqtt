@@ -1,29 +1,29 @@
 import logging
 
 from apscheduler.schedulers.base import BaseScheduler
-from homie.device_base import Device_Base
+from homie_helpers import FloatProperty, EnumProperty, Homie, Node, State
 from miio import DeviceException
 from miio.airpurifier import AirPurifier
 from miio.airpurifier import OperationMode
 
-from homie_helpers import add_property_float, add_property_enum
 
-
-class XiaomiAirPurifier(Device_Base):
+class XiaomiAirPurifier:
     def __init__(self, device_id, config, mqtt_settings, scheduler: BaseScheduler):
-        super().__init__(device_id=device_id, name="Xiaomi Air Purifier 2", mqtt_settings=mqtt_settings)
         self.device = AirPurifier(
             ip=config['ip'],
             token=config['token']
         )
 
-        self.property_temperature = add_property_float(self, "temperature", unit="°C")
-        self.property_humidity = add_property_float(self, "humidity", unit="%", min_value=0, max_value=100)
-        self.property_speed = add_property_enum(self, "speed",
-                                                values=["off", "silent", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "auto"],
-                                                set_handler=self.set_speed,
-                                                parent_node_id="speed")
-        self.start()
+        self.property_temperature = FloatProperty("temperature", unit="°C")
+        self.property_humidity = FloatProperty("humidity", unit="%", min_value=0, max_value=100)
+        self.property_speed = EnumProperty("speed",
+                                           values=["off", "silent", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "auto"],
+                                           set_handler=self.set_speed)
+
+        self.homie = Homie(mqtt_settings, device_id, "Xiaomi Air Purifier 2", nodes=[
+            Node("status", properties=[self.property_temperature, self.property_humidity]),
+            Node("speed", properties=[self.property_speed])
+        ])
         scheduler.add_job(self.refresh, 'interval', seconds=config['fetch-interval-seconds'])
 
     def refresh(self):
@@ -33,10 +33,10 @@ class XiaomiAirPurifier(Device_Base):
             self.property_temperature.value = status.temperature
             self.property_humidity.value = status.humidity
             self.property_speed.value = speed
-            self.state = "ready"
+            self.homie.state = State.READY
         except DeviceException as e:
             logging.getLogger('XiaomiAirPurifier').warning("Device unreachable: %s" % str(e))
-            self.state = "alert"
+            self.homie.state = State.ALERT
 
     @staticmethod
     def _create_speed(is_on, mode: OperationMode, favorite_level: int):
