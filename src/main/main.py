@@ -8,7 +8,6 @@ from homie_helpers import HomieSettings
 from devices.Gios import Gios
 from devices.PhilipsHue import PhilipsHue
 from devices.PrinterScanner import PrinterScanner
-from devices.SonyBravia import SonyBravia
 from devices.XiaomiAirHumidifier import XiaomiAirHumidifier
 from devices.XiaomiAirPurifier import XiaomiAirPurifier
 from devices.XiaomiAirQualityMonitor import XiaomiAirQualityMonitor
@@ -47,7 +46,6 @@ DEVICE_CLASSES = {
     'xiaomi-air-purifier': XiaomiAirPurifier,
     'xiaomi-air-humidifier': XiaomiAirHumidifier,
     'xiaomi-desk-light': XiaomiDeskLight,
-    'sony-bravia': SonyBravia,
     'philips-hue': PhilipsHue,
     'gios': Gios,
     'printer-scanner': PrinterScanner
