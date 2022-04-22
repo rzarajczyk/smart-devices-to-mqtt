@@ -5,7 +5,6 @@ import yaml
 from apscheduler.schedulers.blocking import BlockingScheduler
 from homie_helpers import HomieSettings
 
-from devices.Gios import Gios
 from devices.PhilipsHue import PhilipsHue
 from devices.PrinterScanner import PrinterScanner
 from devices.XiaomiAirHumidifier import XiaomiAirHumidifier
@@ -47,7 +46,6 @@ DEVICE_CLASSES = {
     'xiaomi-air-humidifier': XiaomiAirHumidifier,
     'xiaomi-desk-light': XiaomiDeskLight,
     'philips-hue': PhilipsHue,
-    'gios': Gios,
     'printer-scanner': PrinterScanner
 }
 
