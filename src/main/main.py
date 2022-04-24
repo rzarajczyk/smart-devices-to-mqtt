@@ -9,7 +9,6 @@ from devices.PhilipsHue import PhilipsHue
 from devices.PrinterScanner import PrinterScanner
 from devices.XiaomiAirHumidifier import XiaomiAirHumidifier
 from devices.XiaomiAirPurifier import XiaomiAirPurifier
-from devices.XiaomiAirQualityMonitor import XiaomiAirQualityMonitor
 ########################################################################################################################
 # logging configuration
 
