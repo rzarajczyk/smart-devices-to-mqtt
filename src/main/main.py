@@ -8,7 +8,6 @@ from homie_helpers import HomieSettings
 from devices.PhilipsHue import PhilipsHue
 from devices.PrinterScanner import PrinterScanner
 from devices.XiaomiAirHumidifier import XiaomiAirHumidifier
-from devices.XiaomiAirPurifier import XiaomiAirPurifier
 ########################################################################################################################
 # logging configuration
 
@@ -39,7 +38,6 @@ with open('config/smart-devices-to-mqtt.yaml', 'r') as f:
 
 
 DEVICE_CLASSES = {
-    'xiaomi-air-purifier': XiaomiAirPurifier,
     'xiaomi-air-humidifier': XiaomiAirHumidifier,
     'philips-hue': PhilipsHue,
     'printer-scanner': PrinterScanner
