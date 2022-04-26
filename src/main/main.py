@@ -39,7 +39,6 @@ with open('config/smart-devices-to-mqtt.yaml', 'r') as f:
 
 
 DEVICE_CLASSES = {
-    'xiaomi-air-monitor': XiaomiAirQualityMonitor,
     'xiaomi-air-purifier': XiaomiAirPurifier,
     'xiaomi-air-humidifier': XiaomiAirHumidifier,
     'philips-hue': PhilipsHue,
